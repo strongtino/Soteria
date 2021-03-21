@@ -4,17 +4,13 @@ import dev.strongtino.soteria.service.license.License;
 import dev.strongtino.soteria.service.license.product.Product;
 import dev.strongtino.soteria.util.command.Command;
 import dev.strongtino.soteria.util.command.CommandType;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.TextChannel;
 
-import java.awt.Color;
+import java.awt.*;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.stream.Collectors;
-
-/**
- * Created by StrongTino on 29.12.2020.
- */
 
 public class LicenseCommand extends Command {
 
@@ -23,7 +19,7 @@ public class LicenseCommand extends Command {
     }
 
     @Override
-    public void execute(User user, TextChannel channel, String[] args) {
+    public void execute(Member member, TextChannel channel, String[] args) {
         if (args.length == 1 && args[0].equalsIgnoreCase("list")) {
             StringBuilder builder = new StringBuilder();
             if (SOTERIA.getLicenseService().getLicenses().isEmpty()) {
@@ -42,13 +38,15 @@ public class LicenseCommand extends Command {
             Product product = Product.getByName(args[2]);
 
             if (product == null) {
-                channel.sendMessage(embed(Color.RED, "License Error", "Usage: /license create <user> <product>\n\nAvailable products: "
+                channel.sendMessage(createEmbed(Color.RED, "License Error", "Usage: /license create <user> <product>\n\nAvailable products: "
                         + convertToString(Arrays.stream(Product.values()).map(Product::name).collect(Collectors.toList()), true))).queue();
                 return;
             }
-            License license = SOTERIA.getLicenseService().createLicense(licenseUser, product);
+            runAsync(() -> {
+                License license = SOTERIA.getLicenseService().createLicense(licenseUser, product);
 
-            channel.sendMessage("License: " + license.getKey() + "\nUser: " + license.getUser() + "\nProduct: " + license.getProduct().getName()).queue();
+                channel.sendMessage("License: " + license.getKey() + "\nUser: " + license.getUser() + "\nProduct: " + license.getProduct().getName()).queue();
+            });
         }
     }
 }

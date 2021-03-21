@@ -1,17 +1,15 @@
-package dev.strongtino.soteria.service.license.rest.controller;
+package dev.strongtino.soteria.service.license.rest;
 
 import dev.strongtino.soteria.service.license.License;
 import dev.strongtino.soteria.service.license.product.Product;
-import dev.strongtino.soteria.service.license.rest.response.LicenseRequestResponse;
-import dev.strongtino.soteria.service.license.rest.validation.ValidationType;
 import dev.strongtino.soteria.util.Base;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Created by StrongTino on 1.1.2021.
- */
+import static dev.strongtino.soteria.service.license.rest.ValidationType.INVALID;
+import static dev.strongtino.soteria.service.license.rest.ValidationType.VALID;
+import static dev.strongtino.soteria.service.license.rest.ValidationType.WRONG_PRODUCT;
 
 @RestController
 public class LicenseController implements Base {
@@ -21,14 +19,10 @@ public class LicenseController implements Base {
         License license = SOTERIA.getLicenseService().getLicenseByKey(key);
         Product product = Product.getByName(productName);
 
-        LicenseRequestResponse response = new LicenseRequestResponse(key);
+        ValidationType type = license == null ? INVALID : license.getProduct() == product ? VALID : WRONG_PRODUCT;
+        LicenseRequestResponse response = new LicenseRequestResponse(type);
 
-        if (license == null) {
-            response.setValidationType(ValidationType.INVALID);
-            response.setUser("Unknown");
-            response.setProduct("Unknown");
-        } else {
-            response.setValidationType(license.getProduct() == product ? ValidationType.VALID : ValidationType.WRONG_PRODUCT);
+        if (type == VALID) {
             response.setUser(license.getUser());
             response.setProduct(license.getProduct().getName());
         }

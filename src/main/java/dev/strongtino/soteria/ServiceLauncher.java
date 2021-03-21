@@ -10,7 +10,7 @@ public class ServiceLauncher {
 		// Starting Discord bot service
 		new Soteria().start();
 
-		// Starting Spring REST web service
+		// Starting Spring service
 		SpringApplication.run(ServiceLauncher.class);
 	}
 }

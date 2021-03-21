@@ -1,16 +1,12 @@
 package dev.strongtino.soteria.service.license.product;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import javax.annotation.Nullable;
 import java.util.Arrays;
 
-/**
- * Created by StrongTino on 28.12.2020.
- */
-
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Getter
 public enum Product {
 

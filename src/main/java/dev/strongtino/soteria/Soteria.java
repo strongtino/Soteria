@@ -5,16 +5,13 @@ import dev.strongtino.soteria.service.database.DatabaseService;
 import dev.strongtino.soteria.service.license.LicenseService;
 import dev.strongtino.soteria.util.Base;
 import lombok.Getter;
-import net.dv8tion.jda.core.JDA;
-import net.dv8tion.jda.core.JDABuilder;
-import net.dv8tion.jda.core.entities.Game;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.requests.GatewayIntent;
 
 import javax.security.auth.login.LoginException;
 import java.util.stream.Stream;
-
-/**
- * Created by StrongTino on 28.12.2020.
- */
 
 @Getter
 public class Soteria {
@@ -31,15 +28,17 @@ public class Soteria {
         instance = this;
 
         connect();
-        registerCommands();
         loadServices();
-        loadOther();
+        loadCommands();
     }
 
-    private void registerCommands() {
-        Stream.of(
-                new LicenseCommand()
-        ).forEach(command -> jda.addEventListener(command));
+    private void connect() {
+        try {
+            jda = JDABuilder.create(Base.BOT_TOKEN, GatewayIntent.getIntents(GatewayIntent.ALL_INTENTS)).build();
+            jda.getPresence().setPresence(Activity.playing(Base.BOT_PRESENCE), false);
+        } catch (LoginException e) {
+            System.exit(1);
+        }
     }
 
     private void loadServices() {
@@ -47,16 +46,9 @@ public class Soteria {
         licenseService = new LicenseService();
     }
 
-    private void loadOther() {
-        databaseService.loadLicenses();
-    }
-
-    private void connect() {
-        try {
-            jda = new JDABuilder(Base.BOT_TOKEN).build();
-            jda.getPresence().setPresence(Game.watching(Base.BOT_PRESENCE), false);
-        } catch (LoginException e) {
-            System.exit(1);
-        }
+    private void loadCommands() {
+        Stream.of( // more commands will be added therefore -> stream
+                new LicenseCommand()
+        ).forEach(command -> jda.addEventListener(command));
     }
 }
