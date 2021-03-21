@@ -10,9 +10,9 @@ import java.util.Arrays;
 @Getter
 public enum Product {
 
-    SIGMA("Sigma"),
-    FFA("FFA"),
-    FREEZE("Freeze");
+    WINDOWS("Windows"),
+    LINUX("Linux"),
+    ANDROID("Android");
 
     private final String name;
 
