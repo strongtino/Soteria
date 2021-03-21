@@ -10,7 +10,7 @@ import java.util.Arrays;
 @Getter
 public enum Product {
 
-    WINDOWS("Windows"),
+    NETFLIX("Netflix"),
     LINUX("Linux"),
     ANDROID("Android");
 
