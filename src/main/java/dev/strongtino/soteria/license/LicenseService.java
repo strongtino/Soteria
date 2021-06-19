@@ -1,16 +1,17 @@
-package dev.strongtino.soteria.service.license;
+package dev.strongtino.soteria.license;
 
-import dev.strongtino.soteria.service.license.product.Product;
-import dev.strongtino.soteria.util.Base;
+import dev.strongtino.soteria.Soteria;
+import dev.strongtino.soteria.util.DatabaseUtil;
+import dev.strongtino.soteria.util.Task;
 import org.bson.Document;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nullable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class LicenseService implements Base {
+public class LicenseService {
 
     private final static Map<String, License> LICENSES = new HashMap<>();
 
@@ -19,25 +20,29 @@ public class LicenseService implements Base {
     private final char[] possibleKeyCharactersArray = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".toCharArray();
 
     public LicenseService() {
-        // Caching all licenses from the database
-        SOTERIA.getDatabaseService().getDocuments(COLLECTION_LICENSES)
+        Task.async(() -> Soteria.INSTANCE.getDatabaseService().getDocuments(DatabaseUtil.COLLECTION_LICENSES)
                 .stream()
-                .map(document -> GSON.fromJson(document.toJson(), License.class))
-                .forEach(this::addLicenseToMap);
+                .map(document -> Soteria.GSON.fromJson(document.toJson(), License.class))
+                .forEach(this::addLicenseToMap)
+        );
+        new LicenseThread().start();
     }
 
-    public License createLicense(String user, Product product) {
-        License license = new License(generateLicenseKey(), user, product);
+    public License createLicense(String user, String product) {
+        License license = new License(generateLicenseKey(), user, product, Long.MAX_VALUE);
 
-        SOTERIA.getDatabaseService().insertDocument(COLLECTION_LICENSES, Document.parse(GSON.toJson(license)));
+        Task.async(() -> Soteria.INSTANCE.getDatabaseService().insertDocument(DatabaseUtil.COLLECTION_LICENSES, Document.parse(Soteria.GSON.toJson(license))));
         addLicenseToMap(license);
 
         return license;
     }
 
     @Nullable
-    public License getLicenseByKey(String key) {
-        return getLicenses().stream().filter(license -> license.getKey().equals(key)).findFirst().orElse(null);
+    public License getLicense(String key, String software) {
+        return getLicenses().stream()
+                .filter(license -> license.getKey().equals(key) && license.getSoftware().equalsIgnoreCase(software))
+                .findFirst()
+                .orElse(null);
     }
 
     public void addLicenseToMap(License license) {
@@ -55,7 +60,7 @@ public class LicenseService implements Base {
         String key = new String(keyCharactersArray);
 
         // 40+ digit number of permutations, but better worry than be sorry ya know
-        if (SOTERIA.getDatabaseService().exists(COLLECTION_LICENSES, "_id", key)) {
+        if (Soteria.INSTANCE.getDatabaseService().exists(DatabaseUtil.COLLECTION_LICENSES, "_id", key)) {
             return generateLicenseKey();
         }
         return new String(keyCharactersArray);

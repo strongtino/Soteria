@@ -1,24 +1,27 @@
-package dev.strongtino.soteria.service.database;
+package dev.strongtino.soteria.database;
 
 import com.mongodb.MongoClient;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
-import dev.strongtino.soteria.util.Base;
+import com.mongodb.lang.Nullable;
+import dev.strongtino.soteria.Soteria;
 import org.bson.Document;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DatabaseService implements Base {
+public class DatabaseService {
 
     private final MongoDatabase database;
 
     public DatabaseService() {
-        MongoClient client = new MongoClient(new ServerAddress(MONGO_ADDRESS, MONGO_PORT));
-        database = client.getDatabase(MONGO_DATABASE);
+        MongoClient client = new MongoClient(new ServerAddress(
+                Soteria.INSTANCE.getConfig().getString("mongo-address"),
+                Soteria.INSTANCE.getConfig().getInteger("mongo-port")
+        ));
+        database = client.getDatabase(Soteria.INSTANCE.getConfig().getString("mongo-database"));
     }
 
     public void insertDocument(String collection, Document document) {
@@ -33,11 +36,6 @@ public class DatabaseService implements Base {
         database.getCollection(collection).deleteOne(Filters.eq(key, value));
     }
 
-    @Nullable
-    public Document getDocument(String collection, String key, String value) {
-        return database.getCollection(collection).find(Filters.eq(key, value)).first();
-    }
-
     public List<Document> getDocuments(String collection, String key, String value) {
         return database.getCollection(collection).find(Filters.eq(key, value)).into(new ArrayList<>());
     }
@@ -48,5 +46,10 @@ public class DatabaseService implements Base {
 
     public boolean exists(String collection, String key, Object value) {
         return database.getCollection(collection).find(Filters.eq(key, value)).first() != null;
+    }
+
+    @Nullable
+    public Document getDocument(String collection, String key, String value) {
+        return database.getCollection(collection).find(Filters.eq(key, value)).first();
     }
 }

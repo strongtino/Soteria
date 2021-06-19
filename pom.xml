@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>dev.strongtino</groupId>
-	<artifactId>soteria</artifactId>
+	<artifactId>Soteria</artifactId>
 	<version>1.0.0-dev</version>
-	<name>soteria</name>
+	<name>Soteria</name>
 	<description>License system using REST, JDA and MongoDB.</description>
 
 	<properties>
