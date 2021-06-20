@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.LongSerializationPolicy;
 import dev.strongtino.soteria.command.LicenseCommand;
+import dev.strongtino.soteria.command.RequestsCommand;
 import dev.strongtino.soteria.command.SoftwareCommand;
 import dev.strongtino.soteria.database.DatabaseService;
 import dev.strongtino.soteria.license.LicenseService;
@@ -74,6 +75,7 @@ public class Soteria {
     private void loadCommands() {
         Stream.of(
                 new LicenseCommand(),
+                new RequestsCommand(),
                 new SoftwareCommand()
         ).forEach(command -> jda.addEventListener(command));
     }

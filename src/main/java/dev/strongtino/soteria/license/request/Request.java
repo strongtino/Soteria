@@ -14,4 +14,8 @@ public class Request {
     private final String software;
     private final long requestedAt;
     private final LicenseController.ValidationType validationType;
+
+    public boolean isRecent() {
+        return System.currentTimeMillis() - requestedAt < 60_000L;
+    }
 }
