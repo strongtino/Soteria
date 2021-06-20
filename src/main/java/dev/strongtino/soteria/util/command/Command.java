@@ -23,7 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class Command extends ListenerAdapter {
 
-    public final static char PREFIX = '!';
+    public final static char PREFIX = '/';
 
     private final String command;
     private final List<String> aliases;
@@ -102,7 +102,9 @@ public class Command extends ListenerAdapter {
         return null;
     }
 
-    public void execute(Member member, TextChannel channel, Message message, String[] args) {}
+    public void execute(Member member, TextChannel channel, Message message, String[] args) {
+    }
 
-    public void execute(User user, PrivateChannel channel, Message message, String[] args) {}
+    public void execute(User user, PrivateChannel channel, Message message, String[] args) {
+    }
 }

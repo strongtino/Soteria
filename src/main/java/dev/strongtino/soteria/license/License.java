@@ -3,7 +3,6 @@ package dev.strongtino.soteria.license;
 import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @AllArgsConstructor
