@@ -19,7 +19,7 @@ public class LicenseController {
             @RequestParam(value = "key", defaultValue = "Unknown") String key,
             @RequestParam(value = "software", defaultValue = "Unknown") String software) {
 
-        License license = Soteria.INSTANCE.getLicenseService().getLicense(key, software);
+        License license = Soteria.INSTANCE.getLicenseService().getLicenseByKeyAndSoftware(key, software);
         ValidationType type = license == null ? ValidationType.INVALID : ValidationType.VALID;
 
         Soteria.INSTANCE.getRequestService().insertRequest(request.getRemoteAddr(), key, software, type);

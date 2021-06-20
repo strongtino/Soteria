@@ -8,8 +8,10 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 public class LicenseService {
 
@@ -23,13 +25,14 @@ public class LicenseService {
         Task.async(() -> Soteria.INSTANCE.getDatabaseService().getDocuments(DatabaseUtil.COLLECTION_LICENSES)
                 .stream()
                 .map(document -> Soteria.GSON.fromJson(document.toJson(), License.class))
+                .filter(License::isActive)
                 .forEach(this::addLicenseToMap)
         );
         new LicenseThread().start();
     }
 
-    public License createLicense(String user, String product) {
-        License license = new License(generateLicenseKey(), user, product, Long.MAX_VALUE);
+    public License createLicense(String user, String product, long duration) {
+        License license = new License(generateLicenseKey(), user, product, duration);
 
         Task.async(() -> Soteria.INSTANCE.getDatabaseService().insertDocument(DatabaseUtil.COLLECTION_LICENSES, Document.parse(Soteria.GSON.toJson(license))));
         addLicenseToMap(license);
@@ -45,15 +48,31 @@ public class LicenseService {
     }
 
     @Nullable
-    public License getLicense(String key, String software) {
+    public License getLicenseByKeyAndSoftware(String key, String software) {
         return getLicenses().stream()
                 .filter(license -> license.getKey().equals(key) && license.getSoftware().equalsIgnoreCase(software))
                 .findFirst()
                 .orElse(null);
     }
 
+    @Nullable
+    public License getLicenseByUserAndSoftware(String user, String software) {
+        return getLicenses().stream()
+                .filter(license -> license.getUser().equalsIgnoreCase(user) && license.getSoftware().equalsIgnoreCase(software))
+                .findFirst()
+                .orElse(null);
+    }
+
     public void addLicenseToMap(License license) {
         LICENSES.put(license.getKey(), license);
+    }
+
+    public void removeLicenseFromMap(String key) {
+        LICENSES.remove(key);
+    }
+
+    public List<License> getActiveLicenses() {
+        return getLicenses().stream().filter(License::isActive).collect(Collectors.toList());
     }
 
     public Collection<License> getLicenses() {
