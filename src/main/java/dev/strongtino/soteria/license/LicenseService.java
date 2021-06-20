@@ -48,6 +48,11 @@ public class LicenseService {
     }
 
     @Nullable
+    public License getLicenseByKey(String key) {
+        return LICENSES.get(key);
+    }
+
+    @Nullable
     public License getLicenseByKeyAndSoftware(String key, String software) {
         return getLicenses().stream()
                 .filter(license -> license.getKey().equals(key) && license.getSoftware().equalsIgnoreCase(software))

@@ -46,7 +46,7 @@ public class LicenseCommand extends Command {
                 Software software = Soteria.INSTANCE.getSoftwareService().getSoftware(args[2]);
 
                 if (software == null) {
-                    channel.sendMessage(JDAUtil.createEmbed(Color.RED, "License Error", "Software with the name `" + args[2] + "`doesn't exist.")).queue();
+                    channel.sendMessage(JDAUtil.createEmbed(Color.RED, "License Error", "Software with the name `" + args[2] + "` doesn't exist.")).queue();
                     return;
                 }
                 License license = Soteria.INSTANCE.getLicenseService().getLicenseByUserAndSoftware(args[1], software.getName());
@@ -68,6 +68,24 @@ public class LicenseCommand extends Command {
                 channel.sendMessage(embed.build()).queue();
                 break;
             case "revoke":
+                if (args.length == 1) {
+                    channel.sendMessage(usage).queue();
+                    return;
+                }
+                if (args.length == 2) {
+                    license = Soteria.INSTANCE.getLicenseService().getLicenseByKey(args[1]);
+                } else {
+                    license = Soteria.INSTANCE.getLicenseService().getLicenseByUserAndSoftware(args[1], args[2]);
+                }
+                if (license == null) {
+                    channel.sendMessage(JDAUtil.createEmbed(Color.RED, "License Error", "License with the input attributes doesn't exist.")).queue();
+                    return;
+                }
+                Soteria.INSTANCE.getLicenseService().revokeLicense(license);
+                Soteria.INSTANCE.getLicenseService().removeLicenseFromMap(license.getKey());
+
+                channel.sendMessage(JDAUtil.createEmbed(Color.YELLOW, "License Revoked", "License with the key `" + license.getKey() + "` of user `"
+                        + license.getUser() + "` for the software `" + license.getSoftware() + "` has been revoked and is no longer usable.")).queue();
                 break;
             case "list":
                 int page = args.length == 1 || !StringUtil.isInteger(args[1]) ? 1 : Integer.parseInt(args[1]);
