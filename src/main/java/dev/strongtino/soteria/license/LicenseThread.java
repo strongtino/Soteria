@@ -10,7 +10,7 @@ public class LicenseThread extends Thread {
             Soteria.INSTANCE.getLicenseService().getLicenses()
                     .stream()
                     .filter(license -> license.isExpired() && license.isActive())
-                    .forEach(License::revoke);
+                    .forEach(license -> Soteria.INSTANCE.getLicenseService().revokeLicense(license));
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {

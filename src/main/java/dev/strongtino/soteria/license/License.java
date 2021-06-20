@@ -31,9 +31,4 @@ public class License {
     public boolean isExpired() {
         return duration != Long.MAX_VALUE && System.currentTimeMillis() > createdAt + duration;
     }
-
-    public void revoke() {
-        active = false;
-        revokedAt = System.currentTimeMillis();
-    }
 }

@@ -37,6 +37,13 @@ public class LicenseService {
         return license;
     }
 
+    public void revokeLicense(License license) {
+        license.setActive(false);
+        license.setRevokedAt(System.currentTimeMillis());
+
+        Task.async(() -> Soteria.INSTANCE.getDatabaseService().updateDocument(DatabaseUtil.COLLECTION_LICENSES, "_id", license.getKey(), Document.parse(Soteria.GSON.toJson(license))));
+    }
+
     @Nullable
     public License getLicense(String key, String software) {
         return getLicenses().stream()
