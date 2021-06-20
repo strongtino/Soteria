@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 public class Request {
 
-    private final int id;
+    private final int index;
     private final String address;
     private final String key;
     private final String software;

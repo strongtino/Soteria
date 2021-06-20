@@ -2,6 +2,7 @@ package dev.strongtino.soteria.command;
 
 import dev.strongtino.soteria.Soteria;
 import dev.strongtino.soteria.license.License;
+import dev.strongtino.soteria.software.Software;
 import dev.strongtino.soteria.util.JDAUtil;
 import dev.strongtino.soteria.util.StringUtil;
 import dev.strongtino.soteria.util.TimeUtil;
@@ -42,10 +43,16 @@ public class LicenseCommand extends Command {
                     channel.sendMessage(usage).queue();
                     return;
                 }
-                License license = Soteria.INSTANCE.getLicenseService().getLicenseByUserAndSoftware(args[1], args[2]);
+                Software software = Soteria.INSTANCE.getSoftwareService().getSoftware(args[2]);
+
+                if (software == null) {
+                    channel.sendMessage(JDAUtil.createEmbed(Color.RED, "License Error", "Software with the name `" + args[2] + "`doesn't exist.")).queue();
+                    return;
+                }
+                License license = Soteria.INSTANCE.getLicenseService().getLicenseByUserAndSoftware(args[1], software.getName());
 
                 if (license != null) {
-                    channel.sendMessage(JDAUtil.createEmbed(Color.RED, "License Error", "License with the user **" + license.getUser() + "** for the software **" + license.getSoftware() + "** already exists.")).queue();
+                    channel.sendMessage(JDAUtil.createEmbed(Color.RED, "License Error", "License with the user `" + license.getUser() + "` for the software `" + license.getSoftware() + "` already exists.")).queue();
                     return;
                 }
                 license = Soteria.INSTANCE.getLicenseService().createLicense(args[1], args[2], args.length == 3 ? Long.MAX_VALUE : TimeUtil.getDuration(args[3]));
@@ -80,9 +87,9 @@ public class LicenseCommand extends Command {
                     license = elements.get(i);
 
                     embed.addField((i + 1 + ((page - 1) * elementsPerPage)) + ". license",
-                            "Key: **" + license.getKey() + "**"
-                                    + "\nUser: **" + license.getUser() + "**"
-                                    + "\nSoftware: **" + license.getSoftware() + "**",
+                            "Key: `" + license.getKey() + "`"
+                                    + "\nUser: `" + license.getUser() + "`"
+                                    + "\nSoftware: `" + license.getSoftware() + "`",
                             false
                     );
                 }
