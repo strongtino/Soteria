@@ -22,4 +22,8 @@ public class StringUtil {
             return false;
         }
     }
+
+    public static String formatInteger(int number) {
+        return String.format("%,d", number).replace(".", ",");
+    }
 }

@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 public class LicenseService {
 
-    private final static Map<String, License> LICENSES = new HashMap<>();
+    private final Map<String, License> licenses = new HashMap<>();
 
     private final int keyLength = 32;
     private final char[] keyCharactersArray = new char[keyLength];
@@ -50,7 +50,7 @@ public class LicenseService {
 
     @Nullable
     public License getLicenseByKey(String key) {
-        return LICENSES.get(key);
+        return licenses.get(key);
     }
 
     @Nullable
@@ -78,11 +78,11 @@ public class LicenseService {
     }
 
     public void addLicenseToMap(License license) {
-        LICENSES.put(license.getKey(), license);
+        licenses.put(license.getKey(), license);
     }
 
     public void removeLicenseFromMap(String key) {
-        LICENSES.remove(key);
+        licenses.remove(key);
     }
 
     public List<License> getActiveLicenses() {
@@ -90,7 +90,7 @@ public class LicenseService {
     }
 
     public Collection<License> getLicenses() {
-        return LICENSES.values();
+        return licenses.values();
     }
 
     public String generateLicenseKey() {

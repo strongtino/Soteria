@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class SoftwareService {
 
-    private static final Map<String, Software> SOFTWARE = new HashMap<>();
+    private final Map<String, Software> softwareMap = new HashMap<>();
 
     public SoftwareService() {
         Task.async(() -> Soteria.INSTANCE.getDatabaseService().getDocuments(DatabaseUtil.COLLECTION_SOFTWARE)
@@ -23,7 +23,7 @@ public class SoftwareService {
     }
 
     public Software createSoftware(String name) {
-        if (SOFTWARE.containsKey(name.toLowerCase())) {
+        if (softwareMap.containsKey(name.toLowerCase())) {
             return null;
         }
         Software software = new Software(name);
@@ -36,26 +36,26 @@ public class SoftwareService {
 
     public boolean deleteSoftware(String name) {
         name = name.toLowerCase();
-        Software software = SOFTWARE.get(name);
+        Software software = softwareMap.get(name);
 
         if (software == null) return false;
 
         Task.async(() -> Soteria.INSTANCE.getDatabaseService().deleteDocument(DatabaseUtil.COLLECTION_SOFTWARE, "_id", software.getName()));
-        SOFTWARE.remove(name);
+        softwareMap.remove(name);
 
         return true;
     }
 
     @Nullable
     public Software getSoftware(String name) {
-        return SOFTWARE.get(name.toLowerCase());
+        return softwareMap.get(name.toLowerCase());
     }
 
     public void addSoftwareToMap(Software software) {
-        SOFTWARE.put(software.getName().toLowerCase(), software);
+        softwareMap.put(software.getName().toLowerCase(), software);
     }
 
     public Collection<Software> getSoftware() {
-        return SOFTWARE.values();
+        return softwareMap.values();
     }
 }

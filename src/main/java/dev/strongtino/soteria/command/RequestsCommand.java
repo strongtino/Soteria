@@ -45,7 +45,7 @@ public class RequestsCommand extends Command {
             }
             embed.addField("IP address", args[0], false);
             embed.addField("Total requests", String.valueOf(requests.size()), true);
-            embed.addField("Recent requests", String.valueOf(requests.stream().filter(Request::isRecent).count()), true);
+            embed.addField("Recent requests", String.valueOf(Soteria.INSTANCE.getRequestService().getRecentRequests().size()), true);
 
             embed.addField("Requests per software", Soteria.INSTANCE.getSoftwareService().getSoftware().stream().map(software -> {
                 List<Request> softwareRequests = Soteria.INSTANCE.getRequestService().getRequestsBySoftware(software);
