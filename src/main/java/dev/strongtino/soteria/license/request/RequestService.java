@@ -24,7 +24,7 @@ public class RequestService {
     }
 
     public void insertRequest(String address, String key, String software, LicenseController.ValidationType type) {
-        recentRequests.add(new Request(address));
+        recentRequests.add(new Request(address, key));
 
         Task.async(() -> {
             Request request = new Request(getRequestsByAddress(address).size() + 1, address, key, software, System.currentTimeMillis(), type);
@@ -47,8 +47,19 @@ public class RequestService {
                 .collect(Collectors.toList());
     }
 
+    public List<Request> getRequestsByKey(String key) {
+        return Soteria.INSTANCE.getDatabaseService().getDocuments(DatabaseUtil.COLLECTION_REQUESTS, "key", key)
+                .stream()
+                .map(document -> Soteria.GSON.fromJson(document.toJson(), Request.class))
+                .collect(Collectors.toList());
+    }
+
     public boolean detectedTooManyRequests(String address) {
         return getRecentRequests().stream().filter(request -> request.getAddress().equals(address)).count() > REQUESTS_PER_MINUTE;
+    }
+
+    public List<Request> getRecentRequests(String key) {
+        return recentRequests.stream().filter(request -> request.getKey().equals(key)).collect(Collectors.toList());
     }
 
     public List<Request> getRecentRequests() {

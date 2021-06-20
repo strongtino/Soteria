@@ -15,8 +15,8 @@ public class Request {
     private final long requestedAt;
     private final LicenseController.ValidationType validationType;
 
-    public Request(String address) {
-        this(0, address, null, null, System.currentTimeMillis(), null);
+    public Request(String address, String key) {
+        this(0, address, key, null, System.currentTimeMillis(), null);
     }
 
     public boolean isRecent() {
