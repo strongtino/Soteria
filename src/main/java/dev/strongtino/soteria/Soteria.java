@@ -4,6 +4,7 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.LongSerializationPolicy;
+import dev.strongtino.soteria.command.LicenseCommand;
 import dev.strongtino.soteria.database.DatabaseService;
 import dev.strongtino.soteria.license.LicenseService;
 import dev.strongtino.soteria.license.request.RequestService;
@@ -18,6 +19,7 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 import javax.security.auth.login.LoginException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Stream;
 
 @Getter
 public class Soteria {
@@ -43,6 +45,7 @@ public class Soteria {
     void start() {
         connect();
         loadServices();
+        loadCommands();
     }
 
     private void connect() {
@@ -65,5 +68,11 @@ public class Soteria {
         licenseService = new LicenseService();
         requestService = new RequestService();
         softwareService = new SoftwareService();
+    }
+
+    private void loadCommands() {
+        Stream.of(
+                new LicenseCommand()
+        ).forEach(command -> jda.addEventListener(command));
     }
 }
