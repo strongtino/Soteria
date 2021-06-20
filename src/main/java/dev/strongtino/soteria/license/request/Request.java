@@ -15,6 +15,10 @@ public class Request {
     private final long requestedAt;
     private final LicenseController.ValidationType validationType;
 
+    public Request(String address) {
+        this(0, address, null, null, System.currentTimeMillis(), null);
+    }
+
     public boolean isRecent() {
         return System.currentTimeMillis() - requestedAt < 60_000L;
     }

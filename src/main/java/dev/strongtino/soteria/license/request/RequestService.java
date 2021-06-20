@@ -7,12 +7,25 @@ import dev.strongtino.soteria.util.DatabaseUtil;
 import dev.strongtino.soteria.util.Task;
 import org.bson.Document;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class RequestService {
 
+    // This could be made so it can be set per license if someone has to start a lot of application
+    // instances at the same time, but this is just for "demonstrable purposes"
+    private static final int REQUESTS_PER_MINUTE = 10;
+
+    private final List<Request> recentRequests = new ArrayList<>();
+
+    public RequestService() {
+        new RequestThread().start();
+    }
+
     public void insertRequest(String address, String key, String software, LicenseController.ValidationType type) {
+        recentRequests.add(new Request(address));
+
         Task.async(() -> {
             Request request = new Request(getRequestsByAddress(address).size() + 1, address, key, software, System.currentTimeMillis(), type);
 
@@ -32,5 +45,13 @@ public class RequestService {
                 .stream()
                 .map(document -> Soteria.GSON.fromJson(document.toJson(), Request.class))
                 .collect(Collectors.toList());
+    }
+
+    public boolean detectedTooManyRequests(String address) {
+        return getRecentRequests().stream().filter(request -> request.getAddress().equals(address)).count() > REQUESTS_PER_MINUTE;
+    }
+
+    public List<Request> getRecentRequests() {
+        return recentRequests;
     }
 }
