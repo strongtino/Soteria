@@ -18,6 +18,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import java.awt.Color;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class LicenseCommand extends Command {
 
@@ -86,6 +87,42 @@ public class LicenseCommand extends Command {
 
                 channel.sendMessage(JDAUtil.createEmbed(Color.YELLOW, "License Revoked", "License with the key `" + license.getKey() + "` of user `"
                         + license.getUser() + "` for the software `" + license.getSoftware() + "` has been revoked and is no longer usable.")).queue();
+                break;
+            case "check":
+                String input = args[1];
+
+                embed = JDAUtil.embedBuilder(Color.ORANGE, "License Lookup");
+                license = Soteria.INSTANCE.getLicenseService().getLicenseByKey(input);
+
+                if (license != null) {
+                    embed.addField("Key", license.getKey(), false);
+
+                    embed.appendDescription("User: `" + license.getUser() + '`'
+                            + "\nSoftware: `" + license.getSoftware() + '`'
+                            + "\nDuration: `" + TimeUtil.formatDuration(license.getDuration()) + '`'
+                            + "\nExpires in: `" + license.getExpirationTime() + '`'
+                            + "\nCreated at: `" + TimeUtil.formatDate(license.getCreatedAt()) + '`'
+                    );
+                    channel.sendMessage(embed.build()).queue();
+                    return;
+                }
+                software = Soteria.INSTANCE.getSoftwareService().getSoftware(input);
+
+                if (software != null) {
+                    embed.appendDescription("There is a total of `" + Soteria.INSTANCE.getLicenseService().getLicensesBySoftware(software).size() + "` active licenses for this software.");
+                    channel.sendMessage(embed.build()).queue();
+                    return;
+                }
+                List<License> licenses = Soteria.INSTANCE.getLicenseService().getLicensesByUser(input);
+
+                if (!licenses.isEmpty()) {
+                    embed.addField("User", input, false);
+                    embed.addField("Active Licenses", licenses.stream().map(l -> '`' + l.getKey() + "` (" + l.getSoftware() + ")\n").collect(Collectors.joining()), false);
+
+                    channel.sendMessage(embed.build()).queue();
+                    return;
+                }
+                channel.sendMessage(JDAUtil.createEmbed(Color.RED, "License Error", "There is no license information for the received input.")).queue();
                 break;
             case "list":
                 int page = args.length == 1 || !StringUtil.isInteger(args[1]) ? 1 : Integer.parseInt(args[1]);

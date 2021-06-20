@@ -1,6 +1,7 @@
 package dev.strongtino.soteria.license;
 
 import dev.strongtino.soteria.Soteria;
+import dev.strongtino.soteria.software.Software;
 import dev.strongtino.soteria.util.DatabaseUtil;
 import dev.strongtino.soteria.util.Task;
 import org.bson.Document;
@@ -66,6 +67,14 @@ public class LicenseService {
                 .filter(license -> license.getUser().equalsIgnoreCase(user) && license.getSoftware().equalsIgnoreCase(software))
                 .findFirst()
                 .orElse(null);
+    }
+
+    public List<License> getLicensesBySoftware(Software software) {
+        return getLicenses().stream().filter(license -> license.getSoftware().equalsIgnoreCase(software.getName())).collect(Collectors.toList());
+    }
+
+    public List<License> getLicensesByUser(String user) {
+        return getLicenses().stream().filter(license -> license.getUser().equalsIgnoreCase(user)).collect(Collectors.toList());
     }
 
     public void addLicenseToMap(License license) {

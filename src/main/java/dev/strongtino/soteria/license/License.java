@@ -1,6 +1,7 @@
 package dev.strongtino.soteria.license;
 
 import com.google.gson.annotations.SerializedName;
+import dev.strongtino.soteria.util.TimeUtil;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,7 +28,15 @@ public class License {
         this(key, user, product, System.currentTimeMillis(), 0L, duration, true);
     }
 
+    public boolean isPermanent() {
+        return duration == Long.MAX_VALUE;
+    }
+
     public boolean isExpired() {
-        return duration != Long.MAX_VALUE && System.currentTimeMillis() > createdAt + duration;
+        return !isPermanent() && System.currentTimeMillis() > createdAt + duration;
+    }
+
+    public String getExpirationTime() {
+        return isPermanent() ? "Never" : TimeUtil.formatDuration(createdAt + duration - System.currentTimeMillis());
     }
 }
