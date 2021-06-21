@@ -42,7 +42,7 @@ public class LicenseController {
         LicenseRequestResponse response = new LicenseRequestResponse(type);
 
         response.setUser(license.getUser());
-        response.setProduct(license.getSoftware());
+        response.setSoftware(license.getSoftware());
 
         return response;
     }
@@ -55,7 +55,7 @@ public class LicenseController {
         private final ValidationType validationType;
 
         private String user;
-        private String product;
+        private String software;
     }
 
     public enum ValidationType {
