@@ -66,7 +66,7 @@ public class ImplementationExample {
 ```
 
 ### Warning
-You need to make sure to properly obfuscate your software because otherwise it can be easily removed with a decompiler.
+You need to make sure to properly obfuscate your software because otherwise the licensing can be easily removed with a decompiler.
 
 ### Contacts
 If you think that something could be improved, you can either create a pull request or contact me on one of the socials, I would highly appreciate that!  
