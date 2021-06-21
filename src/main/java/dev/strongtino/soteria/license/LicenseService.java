@@ -8,15 +8,15 @@ import org.bson.Document;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 public class LicenseService {
 
-    private final Map<String, License> licenses = new HashMap<>();
+    private final Map<String, License> licenses = new ConcurrentHashMap<>();
 
     private final int keyLength = 32;
     private final char[] keyCharactersArray = new char[keyLength];
@@ -35,7 +35,7 @@ public class LicenseService {
     public License createLicense(String user, String product, long duration) {
         License license = new License(generateLicenseKey(), user, product, duration);
 
-        Task.async(() -> Soteria.INSTANCE.getDatabaseService().insertDocument(DatabaseUtil.COLLECTION_LICENSES, Document.parse(Soteria.GSON.toJson(license))));
+        Soteria.INSTANCE.getDatabaseService().insertDocument(DatabaseUtil.COLLECTION_LICENSES, Document.parse(Soteria.GSON.toJson(license)));
         addLicenseToMap(license);
 
         return license;
@@ -45,7 +45,7 @@ public class LicenseService {
         license.setActive(false);
         license.setRevokedAt(System.currentTimeMillis());
 
-        Task.async(() -> Soteria.INSTANCE.getDatabaseService().updateDocument(DatabaseUtil.COLLECTION_LICENSES, "_id", license.getKey(), Document.parse(Soteria.GSON.toJson(license))));
+        Soteria.INSTANCE.getDatabaseService().updateDocument(DatabaseUtil.COLLECTION_LICENSES, "_id", license.getKey(), Document.parse(Soteria.GSON.toJson(license)));
     }
 
     @Nullable

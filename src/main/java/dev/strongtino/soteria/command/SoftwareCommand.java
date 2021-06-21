@@ -2,6 +2,7 @@ package dev.strongtino.soteria.command;
 
 import dev.strongtino.soteria.Soteria;
 import dev.strongtino.soteria.software.Software;
+import dev.strongtino.soteria.software.SoftwareService;
 import dev.strongtino.soteria.util.JDAUtil;
 import dev.strongtino.soteria.util.command.Command;
 import dev.strongtino.soteria.util.command.CommandType;
@@ -16,8 +17,12 @@ import java.util.stream.Collectors;
 
 public class SoftwareCommand extends Command {
 
+    private final SoftwareService service = Soteria.INSTANCE.getSoftwareService();;
+
     public SoftwareCommand() {
         super("software", Permission.ADMINISTRATOR, CommandType.GUILD);
+
+        setAsync(true);
     }
 
     @Override
@@ -32,7 +37,7 @@ public class SoftwareCommand extends Command {
                     sendUsage(channel);
                     return;
                 }
-                Software software = Soteria.INSTANCE.getSoftwareService().createSoftware(args[1]);
+                Software software = service.createSoftware(args[1]);
 
                 if (software == null) {
                     channel.sendMessage(JDAUtil.createEmbed(Color.RED, "Software Error", "Software with the name `" + args[1] + "` already exists.")).queue();
@@ -45,14 +50,14 @@ public class SoftwareCommand extends Command {
                     sendUsage(channel);
                     return;
                 }
-                if (Soteria.INSTANCE.getSoftwareService().deleteSoftware(args[1])) {
+                if (service.deleteSoftware(args[1])) {
                     channel.sendMessage(JDAUtil.createEmbed(Color.ORANGE, "Software Deleted", "Software with the name `" + args[1] + "` has been deleted.")).queue();
                 } else {
                     channel.sendMessage(JDAUtil.createEmbed(Color.RED, "Software Error", "Software with the name `" + args[1] + "` doesn't exists.")).queue();
                 }
                 break;
             case "list":
-                Collection<Software> availableSoftware = Soteria.INSTANCE.getSoftwareService().getSoftware();
+                Collection<Software> availableSoftware = service.getSoftware();
 
                 if (availableSoftware.isEmpty()) {
                     channel.sendMessage(JDAUtil.createEmbed(Color.RED, "Software Error", "There is no software created yet.")).queue();
@@ -66,6 +71,6 @@ public class SoftwareCommand extends Command {
     }
 
     private void sendUsage(TextChannel channel) {
-        channel.sendMessage(JDAUtil.createEmbed(Color.RED, "Invalid usage", "Usage: /software <create|delete> <name>")).queue();
+        channel.sendMessage(JDAUtil.createEmbed(Color.RED, "Invalid usage", "Usage: /software <create|delete|list> [name]")).queue();
     }
 }

@@ -2,7 +2,9 @@ package dev.strongtino.soteria.command;
 
 import dev.strongtino.soteria.Soteria;
 import dev.strongtino.soteria.license.License;
+import dev.strongtino.soteria.license.LicenseService;
 import dev.strongtino.soteria.software.Software;
+import dev.strongtino.soteria.software.SoftwareService;
 import dev.strongtino.soteria.util.JDAUtil;
 import dev.strongtino.soteria.util.StringUtil;
 import dev.strongtino.soteria.util.TimeUtil;
@@ -28,8 +30,13 @@ public class LicenseCommand extends Command {
             "/license check <license> or <user> or <software>",
             "/license list [page]");
 
+    private final LicenseService licenseService = Soteria.INSTANCE.getLicenseService();
+    private final SoftwareService softwareService = Soteria.INSTANCE.getSoftwareService();
+    
     public LicenseCommand() {
         super("license", Arrays.asList("licence", "licenses", "licences"), Permission.ADMINISTRATOR, CommandType.GUILD);
+
+        setAsync(true);
     }
 
     @Override
@@ -44,19 +51,19 @@ public class LicenseCommand extends Command {
                     channel.sendMessage(usage).queue();
                     return;
                 }
-                Software software = Soteria.INSTANCE.getSoftwareService().getSoftware(args[2]);
+                Software software = softwareService.getSoftware(args[2]);
 
                 if (software == null) {
                     channel.sendMessage(JDAUtil.createEmbed(Color.RED, "License Error", "Software with the name `" + args[2] + "` doesn't exist.")).queue();
                     return;
                 }
-                License license = Soteria.INSTANCE.getLicenseService().getLicenseByUserAndSoftware(args[1], software.getName());
+                License license = licenseService.getLicenseByUserAndSoftware(args[1], software.getName());
 
                 if (license != null) {
                     channel.sendMessage(JDAUtil.createEmbed(Color.RED, "License Error", "License with the user `" + license.getUser() + "` for the software `" + license.getSoftware() + "` already exists.")).queue();
                     return;
                 }
-                license = Soteria.INSTANCE.getLicenseService().createLicense(args[1], args[2], args.length == 3 ? Long.MAX_VALUE : TimeUtil.getDuration(args[3]));
+                license = licenseService.createLicense(args[1], args[2], args.length == 3 ? Long.MAX_VALUE : TimeUtil.getDuration(args[3]));
 
                 EmbedBuilder embed = JDAUtil.embedBuilder(Color.ORANGE, "New License");
 
@@ -74,16 +81,16 @@ public class LicenseCommand extends Command {
                     return;
                 }
                 if (args.length == 2) {
-                    license = Soteria.INSTANCE.getLicenseService().getLicenseByKey(args[1]);
+                    license = licenseService.getLicenseByKey(args[1]);
                 } else {
-                    license = Soteria.INSTANCE.getLicenseService().getLicenseByUserAndSoftware(args[1], args[2]);
+                    license = licenseService.getLicenseByUserAndSoftware(args[1], args[2]);
                 }
                 if (license == null) {
                     channel.sendMessage(JDAUtil.createEmbed(Color.RED, "License Error", "License with the input attributes doesn't exist.")).queue();
                     return;
                 }
-                Soteria.INSTANCE.getLicenseService().revokeLicense(license);
-                Soteria.INSTANCE.getLicenseService().removeLicenseFromMap(license.getKey());
+                licenseService.revokeLicense(license);
+                licenseService.removeLicenseFromMap(license.getKey());
 
                 channel.sendMessage(JDAUtil.createEmbed(Color.YELLOW, "License Revoked", "License with the key `" + license.getKey() + "` of user `"
                         + license.getUser() + "` for the software `" + license.getSoftware() + "` has been revoked and is no longer usable.")).queue();
@@ -92,7 +99,7 @@ public class LicenseCommand extends Command {
                 String input = args[1];
 
                 embed = JDAUtil.embedBuilder(Color.ORANGE, "License Lookup");
-                license = Soteria.INSTANCE.getLicenseService().getLicenseByKey(input);
+                license = licenseService.getLicenseByKey(input);
 
                 if (license != null) {
                     embed.addField("Key", license.getKey(), false);
@@ -106,14 +113,14 @@ public class LicenseCommand extends Command {
                     channel.sendMessage(embed.build()).queue();
                     return;
                 }
-                software = Soteria.INSTANCE.getSoftwareService().getSoftware(input);
+                software = softwareService.getSoftware(input);
 
                 if (software != null) {
-                    embed.appendDescription("There is a total of `" + Soteria.INSTANCE.getLicenseService().getLicensesBySoftware(software).size() + "` active licenses for this software.");
+                    embed.appendDescription("There is a total of `" + licenseService.getLicensesBySoftware(software).size() + "` active licenses for this software.");
                     channel.sendMessage(embed.build()).queue();
                     return;
                 }
-                List<License> licenses = Soteria.INSTANCE.getLicenseService().getLicensesByUser(input);
+                List<License> licenses = licenseService.getLicensesByUser(input);
 
                 if (!licenses.isEmpty()) {
                     embed.addField("User", input, false);
@@ -128,7 +135,7 @@ public class LicenseCommand extends Command {
                 int page = args.length == 1 || !StringUtil.isInteger(args[1]) ? 1 : Integer.parseInt(args[1]);
                 int elementsPerPage = 5;
 
-                List<List<License>> pages = StringUtil.sliceList(Soteria.INSTANCE.getLicenseService().getActiveLicenses(), elementsPerPage);
+                List<List<License>> pages = StringUtil.sliceList(licenseService.getActiveLicenses(), elementsPerPage);
 
                 if (page < 1 || page > pages.size()) {
                     channel.sendMessage(JDAUtil.createEmbed(Color.RED, "Invalid page", pages.isEmpty() ? "There are no licenses created yet." : "That page is not found.")).queue();

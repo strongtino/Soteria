@@ -8,6 +8,7 @@ import dev.strongtino.soteria.util.Task;
 import org.bson.Document;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,7 +18,7 @@ public class RequestService {
     // instances at the same time, but this is just for "demonstrable purposes"
     private static final int REQUESTS_PER_MINUTE = 10;
 
-    private final List<Request> recentRequests = new ArrayList<>();
+    private final List<Request> recentRequests = Collections.synchronizedList(new ArrayList<>());
 
     public RequestService() {
         new RequestThread().start();

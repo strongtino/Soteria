@@ -7,12 +7,12 @@ import org.bson.Document;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class SoftwareService {
 
-    private final Map<String, Software> softwareMap = new HashMap<>();
+    private final Map<String, Software> softwareMap = new ConcurrentHashMap<>();
 
     public SoftwareService() {
         Task.async(() -> Soteria.INSTANCE.getDatabaseService().getDocuments(DatabaseUtil.COLLECTION_SOFTWARE)
@@ -28,7 +28,7 @@ public class SoftwareService {
         }
         Software software = new Software(name);
 
-        Task.async(() -> Soteria.INSTANCE.getDatabaseService().insertDocument(DatabaseUtil.COLLECTION_SOFTWARE, Document.parse(Soteria.GSON.toJson(software))));
+        Soteria.INSTANCE.getDatabaseService().insertDocument(DatabaseUtil.COLLECTION_SOFTWARE, Document.parse(Soteria.GSON.toJson(software)));
         addSoftwareToMap(software);
 
         return software;
@@ -40,7 +40,7 @@ public class SoftwareService {
 
         if (software == null) return false;
 
-        Task.async(() -> Soteria.INSTANCE.getDatabaseService().deleteDocument(DatabaseUtil.COLLECTION_SOFTWARE, "_id", software.getName()));
+        Soteria.INSTANCE.getDatabaseService().deleteDocument(DatabaseUtil.COLLECTION_SOFTWARE, "_id", software.getName());
         softwareMap.remove(name);
 
         return true;
