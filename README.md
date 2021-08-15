@@ -2,11 +2,10 @@
 
 This is a system that allows you to manage licenses for various software. 
   
-The backend is built using REST API which has one GET request endpoint responding with the information about validation and MongoDB which stores all the request logs, licenses etc. The frontend is built upon the JDA API which hooks into the Discord bot meaning the licenses and everything else is manageable using Discord bot commands.
+The backend is built using spring boot and has one REST GET endpoint for retrieving license information while frontend is built using the java discord api (JDA).
 
 ### Usage
-You need to have a dedicated machine that will be running the backend all the time which will be responding to the license requests.  
-In every software that you want to implement the licensing you need to make an implementation that will check if the license is valid before your application starts.  
+You need to have a server that will be running the backend 24/7 so it can respond to the HTTP requests and you need to make an implementation that will fire that request when your application starts.
   
 A simple implementation example can be seen below: 
 
